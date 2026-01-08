@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大航海時代：台灣轉口貿易挑戰 (拖拉版)</title>
+    <title>大航海時代：台灣轉口貿易挑戰</title>
     <style>
         :root { --main-brown: #5d4037; --bg-color: #f4e4bc; }
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; touch-action: manipulation; }
         
-        h2 { margin: 10px 0; color: var(--main-brown); font-size: 1.5rem; }
-        #timer { font-size: 1.3rem; font-weight: bold; color: #d32f2f; margin-bottom: 15px; }
+        h2 { margin: 5px 0; color: var(--main-brown); font-size: 1.4rem; }
+        #timer { font-size: 1.2rem; font-weight: bold; color: #d32f2f; margin-bottom: 10px; }
         
-        /* 布局修正：確保三個國家齊高 */
+        /* 關鍵修正：讓三個方格在同一高度 */
         .game-board { 
             display: flex; 
             justify-content: center; 
-            align-items: stretch; /* 關鍵：強制子元素拉伸到相同高度 */
-            gap: 15px; 
+            align-items: flex-start; /* 確保頂部對齊 */
+            gap: 10px; 
             width: 98%; 
             max-width: 1000px; 
         }
@@ -25,94 +25,53 @@
             background: #fffdf5; 
             border: 2px solid var(--main-brown); 
             border-radius: 8px; 
-            padding: 12px; 
-            flex: 1; /* 平分寬度 */
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column; /* 讓內部垂直排列 */
+            padding: 10px; 
+            flex: 1; /* 讓三個卡片寬度完全相等 */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            min-width: 0; /* 防止內容撐開 */
         }
         
-        .region-title { text-align: center; font-weight: bold; background: #8d6e63; color: white; padding: 6px; border-radius: 4px; margin-bottom: 10px; }
+        .region-title { text-align: center; font-weight: bold; background: #8d6e63; color: white; padding: 5px; border-radius: 4px; margin-bottom: 8px; font-size: 1rem; }
         
-        .drop-zone { 
-            flex-grow: 1; /* 讓框格自動填滿剩餘高度 */
-            min-height: 80px; 
-            background: #fdf5e6; 
-            border: 2px dashed #bcaaa4; 
-            margin: 5px 0; 
-            padding: 8px; 
-            border-radius: 4px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            align-content: flex-start;
-            gap: 6px; 
-            transition: background 0.2s;
-        }
-        .drop-zone.drag-over { background: #efebe9; border-color: #5d4037; }
+        .drop-zone { min-height: 60px; background: #fdf5e6; border: 1px solid #d7ccc8; margin: 5px 0; padding: 5px; border-radius: 4px; display: flex; flex-wrap: wrap; gap: 4px; cursor: pointer; }
+        .label { font-size: 0.8rem; color: #5d4037; font-weight: bold; margin-top: 8px; }
 
-        .label { font-size: 0.85rem; color: #5d4037; font-weight: bold; margin-top: 10px; }
-
-        /* 下方物品池 */
-        .items-pool { 
-            background: #fff; 
-            border: 2px solid var(--main-brown); 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin: 20px 0; 
-            width: 95%; 
-            max-width: 900px; 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 10px; 
-            justify-content: center; 
-            min-height: 60px;
-        }
+        /* 下方選單 */
+        .items-pool { background: #fff; border: 2px solid var(--main-brown); padding: 15px; border-radius: 8px; margin: 15px 0; width: 95%; max-width: 900px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
         
-        .item { 
-            background: #8d6e63; 
-            color: white; 
-            padding: 8px 16px; 
-            border-radius: 4px; 
-            cursor: grab; 
-            font-size: 14px; 
-            user-select: none; 
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-        }
-        .item:active { cursor: grabbing; }
+        .item { background: #8d6e63; color: white; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 14px; user-select: none; border: 2px solid transparent; }
+        .item.selected { background: #fbc02d; color: #333; border: 2px solid #5d4037; transform: scale(1.05); }
         
-        #submit-btn { padding: 12px 60px; font-size: 1.2rem; background-color: #388e3c; color: white; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 0 #1b5e20; margin-bottom: 30px; }
-        #submit-btn:hover { background-color: #43a047; }
+        #submit-btn { padding: 12px 50px; font-size: 1.1rem; background-color: #388e3c; color: white; border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 4px 0 #1b5e20; }
         #submit-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1b5e20; }
     </style>
 </head>
 <body>
 
-    <h2>🚢 大航海時代：台灣轉口貿易挑戰</h2>
+    <h2>🚢 台灣轉口貿易挑戰</h2>
     <div id="timer">剩餘時間：02:00</div>
 
     <div class="game-board">
         <div class="region-card">
-            <div class="region-title">🇨🇳 中國航線</div>
-            <div class="label">台灣輸出至中國 (2項)</div>
-            <div class="drop-zone" id="tw-to-cn"></div>
-            <div class="label">從中國輸入台灣 (3項)</div>
-            <div class="drop-zone" id="cn-to-tw"></div>
+            <div class="region-title">🇨🇳 中國</div>
+            <div class="label">台灣輸出 (2項)</div>
+            <div class="drop-zone" id="tw-to-cn" onclick="placeItem(this)"></div>
+            <div class="label">從中國輸入 (3項)</div>
+            <div class="drop-zone" id="cn-to-tw" onclick="placeItem(this)"></div>
         </div>
-
         <div class="region-card">
-            <div class="region-title">🇯🇵 日本航線</div>
-            <div class="label">台灣輸出至日本 (2項)</div>
-            <div class="drop-zone" id="tw-to-jp"></div>
-            <div class="label">從日本輸入台灣 (2項)</div>
-            <div class="drop-zone" id="jp-to-tw"></div>
+            <div class="region-title">🇯🇵 日本</div>
+            <div class="label">台灣輸出 (2項)</div>
+            <div class="drop-zone" id="tw-to-jp" onclick="placeItem(this)"></div>
+            <div class="label">從日本輸入 (2項)</div>
+            <div class="drop-zone" id="jp-to-tw" onclick="placeItem(this)"></div>
         </div>
-
         <div class="region-card">
-            <div class="region-title">🌴 東南亞航線</div>
-            <div class="label">台灣輸出至東南亞 (3項)</div>
-            <div class="drop-zone" id="tw-to-sea"></div>
-            <div class="label">從東南亞輸入台灣 (3項)</div>
-            <div class="drop-zone" id="sea-to-tw"></div>
+            <div class="region-title">🌴 東南亞</div>
+            <div class="label">台灣輸出 (3項)</div>
+            <div class="drop-zone" id="tw-to-sea" onclick="placeItem(this)"></div>
+            <div class="label">從東南亞輸入 (3項)</div>
+            <div class="drop-zone" id="sea-to-tw" onclick="placeItem(this)"></div>
         </div>
     </div>
 
@@ -126,59 +85,56 @@
             "tw-to-jp": ["蔗糖", "鹿皮"], "jp-to-tw": ["銀", "軍需品"]
         };
         const allItems = ["香料", "銀", "瓷器", "絲綢", "藥材", "蔗糖", "瓷器", "絲綢", "軍需品", "香料", "布匹", "蔗糖", "鹿皮", "銀", "軍需品"];
+        let selectedItem = null;
 
         function initGame() {
             const pool = document.getElementById('items-pool');
-            // 打亂順序並生成物品
             allItems.sort(() => Math.random() - 0.5).forEach((name, i) => {
                 const div = document.createElement('div');
-                div.className = 'item';
-                div.innerText = name;
-                div.draggable = true;
-                div.id = 'drag-item-' + i;
-                div.addEventListener('dragstart', (e) => e.dataTransfer.setData("text", e.target.id));
+                div.className = 'item'; div.innerText = name;
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    if (selectedItem) selectedItem.classList.remove('selected');
+                    if (div.parentElement.id === 'items-pool') {
+                        selectedItem = div;
+                        div.classList.add('selected');
+                    } else {
+                        pool.appendChild(div);
+                        selectedItem = null;
+                    }
+                };
                 pool.appendChild(div);
             });
-
-            // 設定所有放置區
-            const zones = document.querySelectorAll('.drop-zone, #items-pool');
-            zones.forEach(zone => {
-                zone.addEventListener('dragover', (e) => e.preventDefault());
-                zone.addEventListener('dragenter', (e) => zone.classList.add('drag-over'));
-                zone.addEventListener('dragleave', (e) => zone.classList.remove('drag-over'));
-                zone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    zone.classList.remove('drag-over');
-                    const id = e.dataTransfer.getData("text");
-                    const draggedElement = document.getElementById(id);
-                    zone.appendChild(draggedElement);
-                });
-            });
             startTimer();
+        }
+
+        function placeItem(zone) {
+            if (selectedItem) {
+                zone.appendChild(selectedItem);
+                selectedItem.classList.remove('selected');
+                selectedItem = null;
+            }
         }
 
         function startTimer() {
             let time = 120;
             const timerObj = setInterval(() => {
                 time--;
-                let m = Math.floor(time/60);
-                let s = (time%60).toString().padStart(2, '0');
-                document.getElementById('timer').innerText = `剩餘時間：0${m}:${s}`;
+                document.getElementById('timer').innerText = `剩餘時間：0${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
                 if(time <= 0) { clearInterval(timerObj); alert("時間到！挑戰失敗。"); location.reload(); }
             }, 1000);
         }
 
         function checkAnswers() {
-            let isWin = true;
+            let win = true;
             for (let id in correctAnswers) {
-                const current = Array.from(document.getElementById(id).children).map(el => el.innerText).sort();
+                const current = Array.from(document.getElementById(id).children).map(i => i.innerText).sort();
                 const target = [...correctAnswers[id]].sort();
-                if (current.join(',') !== target.join(',')) { isWin = false; break; }
+                if (current.join(',') !== target.join(',')) { win = false; break; }
             }
-            if(isWin) alert("🎉 太棒了！你完美達成了大航海時代的貿易任務！");
-            else alert("❌ 內容似乎有些錯誤，請檢查物品是否放在正確的航線與方向喔！");
+            if(win) alert("🎉 太厲害了！完全正確！");
+            else alert("❌ 內容有誤或未完成，請再檢查看看！");
         }
-
         window.onload = initGame;
     </script>
 </body>
